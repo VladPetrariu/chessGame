@@ -19,6 +19,9 @@ public class Main {
 		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		
+		//Once game is created, launch this method to start game loop
+		gp.launchGame();
+		
 		
 	}
 	
