@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Color;
 import javax.swing.JPanel;
 
@@ -11,6 +12,7 @@ public class gamePanel extends JPanel implements Runnable{
 	public static final int height = 800;
 	final int FPS = 60;
 	Thread gameThread;
+	Board board = new Board();
 	
 	public gamePanel() {
 		setPreferredSize(new Dimension (width, height));
@@ -56,6 +58,10 @@ public class gamePanel extends JPanel implements Runnable{
 	//part that draws the chess pieces
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
+		Graphics2D g2 = (Graphics2D)g;
+		
+		board.draw(g2);
 	}
 
 	
