@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import javax.swing.JPanel;
 
@@ -22,10 +23,12 @@ public class gamePanel extends JPanel implements Runnable{
 	final int FPS = 60;
 	Thread gameThread;
 	Board board = new Board();
+	Mouse mouse = new Mouse();
 	
 	//pieces
 	public static ArrayList<Piece> pieces = new ArrayList<>();
 	public static ArrayList<Piece> simPieces = new ArrayList<>();
+	Piece activeP;
 	
 	//color
 	public static final int WHITE = 0;
@@ -35,6 +38,8 @@ public class gamePanel extends JPanel implements Runnable{
 	public gamePanel() {
 		setPreferredSize(new Dimension (width, height));
 		setBackground(Color.black);
+		addMouseMotionListener(mouse);
+		addMouseListener(mouse);
 		
 		setPieces();
 		copyPieces(pieces, simPieces);
@@ -119,6 +124,38 @@ public class gamePanel extends JPanel implements Runnable{
 	//updates the moves of the game
 	private void update() {
 		
+		//if mouse is pressed on an ally piece, it picks it up as the active piece
+		if(mouse.pressed) {
+			if(activeP == null) {
+				
+				for(Piece piece : simPieces) {
+					if(piece.color == currentColor && piece.col == mouse.x/Board.SQUARE_SIZE && piece.row == mouse.y/Board.SQUARE_SIZE) {
+						activeP = piece;
+					}
+				}
+			} else {
+				//if a player is holding a piece, simulate the move
+				simulate();
+				
+			}
+		}
+		
+		/// MOUSE BUTTON RELEASED ///
+		if(mouse.pressed == false) {
+			if(activeP != null) {
+				activeP.updatePosition();
+				activeP = null;
+			}
+		}
+		
+	}
+	private void simulate() {
+		
+		//if a piece is being held, update its position
+		activeP.x = mouse.x - Board.HALF_SQUARE_SIZE;
+		activeP.y = mouse.y - Board.HALF_SQUARE_SIZE;
+		activeP.col = activeP.getCol(activeP.x);
+		activeP.row = activeP.getRow(activeP.y);
 	}
 	
 	//part that draws the chess pieces
@@ -134,8 +171,15 @@ public class gamePanel extends JPanel implements Runnable{
 		for(Piece p : simPieces) {
 			p.draw(g2);
 		}
+		
+		if (activeP != null) {
+			g2.setColor(Color.white);
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+			g2.fillRect(activeP.col*Board.SQUARE_SIZE,  activeP.row*Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+			
+			activeP.draw(g2);
+		}
+		
 	}
-
-	
-
 }
