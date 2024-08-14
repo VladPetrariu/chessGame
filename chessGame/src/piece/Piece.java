@@ -7,15 +7,18 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import main.Board;
+import main.Type;
 import main.gamePanel;
 
 public class Piece {
 
+	public Type type; 
 	public BufferedImage image;
 	public int x, y;
 	public int col, row, preCol, preRow;
 	public int color;
 	public Piece hittingP;
+	public boolean moved, twoStepped;
 	
 	public Piece(int color, int col, int row) {
 		this.color = color;
@@ -59,10 +62,19 @@ public class Piece {
 	}
 	public void updatePosition() {
 		
+		//to check en passant
+		if(type == Type.PAWN) {
+			if(Math.abs(row - preRow) == 2) {
+				twoStepped = true;
+			}
+		}
+		
 		x = getX(col);
 		y = getY(row);
 		preCol = getCol(x);
 		preRow = getRow(y);
+		moved = true;
+		
 		
 	}
 	public void resetPosition() {
@@ -147,6 +159,63 @@ public class Piece {
 				}
 			}
 		}
+		
+		return false;
+	}
+	public boolean pieceIsOnDiagonalLine(int targetCol, int targetRow) {
+		
+		if(targetRow < preRow) {
+			
+			//up left
+			for(int c = preCol-1; c>targetCol; c--) {
+				int diff = Math.abs(c-preCol);
+				for(Piece piece : gamePanel.simPieces){
+					if(piece.col == c && piece.row == preRow - diff) {
+						hittingP = piece;
+						return true;
+					}
+				}
+			}
+			
+			//up right
+			for(int c = preCol+1; c<targetCol; c++) {
+				int diff = Math.abs(c-preCol);
+				for(Piece piece : gamePanel.simPieces){
+					if(piece.col == c && piece.row == preRow - diff) {
+						hittingP = piece;
+						return true;
+					}
+				}
+			}
+		}
+	
+		if(targetRow > preRow) {
+			
+			//down left
+			for(int c = preCol-1; c>targetCol; c--) {
+				int diff = Math.abs(c-preCol);
+				for(Piece piece : gamePanel.simPieces){
+					if(piece.col == c && piece.row == preRow + diff) {
+						hittingP = piece;
+						return true;
+					}
+				}
+			}
+			
+			//down right
+			for(int c = preCol+1; c<targetCol; c++) {
+				int diff = Math.abs(c-preCol);
+				for(Piece piece : gamePanel.simPieces){
+					if(piece.col == c && piece.row == preRow + diff) {
+						hittingP = piece;
+						return true;
+					}
+				}
+			}
+		}
+		
+		
+		
 		
 		return false;
 	}
